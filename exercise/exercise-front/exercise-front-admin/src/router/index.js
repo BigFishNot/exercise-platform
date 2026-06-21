@@ -24,6 +24,30 @@ const routes = [
         name: 'ExerciseTypeList',
         component: () => import('@/views/exerciseType/ExerciseTypeListView.vue'),
         meta: { requireLogin: true, title: '运动类型' }
+      },
+      {
+        path: '/mail/config',
+        name: 'MailConfig',
+        component: () => import('@/views/mail/MailConfigView.vue'),
+        meta: { requireLogin: true, title: '邮件配置' }
+      },
+      {
+        path: '/mail/template',
+        name: 'MailTemplate',
+        component: () => import('@/views/mail/MailTemplateView.vue'),
+        meta: { requireLogin: true, title: '邮件模板' }
+      },
+      {
+        path: '/mail/log',
+        name: 'MailLog',
+        component: () => import('@/views/mail/MailLogView.vue'),
+        meta: { requireLogin: true, title: '发送日志' }
+      },
+      {
+        path: '/mail/send',
+        name: 'MailSend',
+        component: () => import('@/views/mail/MailSendView.vue'),
+        meta: { requireLogin: true, title: '手动发送' }
       }
     ]
   },

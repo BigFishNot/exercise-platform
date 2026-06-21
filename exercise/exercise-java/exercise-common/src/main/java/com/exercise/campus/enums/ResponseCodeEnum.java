@@ -69,6 +69,16 @@ public enum ResponseCodeEnum {
 
     /* ========== 统计 ========== */
     STATISTICS_INTERNAL_ERROR(2801, "fail", "统计聚合失败"),
+
+    /* ========== 邮件通知 ========== */
+    MAIL_CONFIG_NOT_FOUND(2901, "fail", "邮件配置不存在，请先在管理端配置"),
+    MAIL_CONFIG_DISABLED(2902, "fail", "邮件通知未启用"),
+    MAIL_PASSWORD_DECRYPT_FAIL(2903, "fail", "SMTP 密码解密失败"),
+    MAIL_SEND_FAILED(2904, "fail", "邮件发送失败"),
+    MAIL_TEMPLATE_NOT_FOUND(2905, "fail", "邮件模板不存在"),
+    MAIL_TEMPLATE_TYPE_DUPLICATE(2906, "fail", "该分类已存在模板"),
+    MAIL_USER_EMAIL_MISSING(2907, "fail", "用户未设置邮箱，无法发送"),
+    MAIL_TIME_POINTS_INVALID(2908, "fail", "发送时间点格式不合法（HH:mm 逗号分隔 1-6 个）"),
     ;
 
     private final Integer code;

@@ -19,23 +19,10 @@
       <a-menu
         mode="inline"
         :selected-keys="[activeKey]"
+        :items="menuItems"
         class="admin-menu"
         @click="onMenuClick"
-      >
-        <a-menu-item key="/user/list">
-          <template #icon><TeamOutlined /></template>
-          用户管理
-        </a-menu-item>
-        <a-menu-item key="/exerciseType/list">
-          <template #icon><FireOutlined /></template>
-          运动类型
-        </a-menu-item>
-        <a-menu-item key="/placeholder-2" disabled>
-          <template #icon><MailOutlined /></template>
-          邮件配置
-          <span class="menu-soon">敬请期待</span>
-        </a-menu-item>
-      </a-menu>
+      />
 
       <div class="sider-footer">
         <a-button
@@ -83,12 +70,7 @@
               <DownOutlined />
             </div>
             <template #overlay>
-              <a-menu>
-                <a-menu-item @click="handleLogout">
-                  <LogoutOutlined />
-                  退出登录
-                </a-menu-item>
-              </a-menu>
+              <a-menu :items="userDropdownItems" @click="onUserMenuClick" />
             </template>
           </a-dropdown>
         </div>
@@ -106,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   TeamOutlined,
@@ -135,9 +117,49 @@ const activeKey = computed(() => route.path)
 const crumbTitle = computed(() => route.meta?.title || '首页')
 const avatarText = 'A'
 
+/**
+ * 菜单声明式配置（AntdVue 4 推荐写法）
+ * 二级菜单通过 children 表达，避免 slot 模式下 hover 触发的 useInjectMenu 上下文丢失
+ */
+const menuItems = computed(() => [
+  {
+    key: '/user/list',
+    icon: () => h(TeamOutlined),
+    label: '用户管理'
+  },
+  {
+    key: '/exerciseType/list',
+    icon: () => h(FireOutlined),
+    label: '运动类型'
+  },
+  {
+    key: 'mail-group',
+    icon: () => h(MailOutlined),
+    label: '邮件通知',
+    children: [
+      { key: '/mail/config',  label: '邮件配置' },
+      { key: '/mail/template', label: '邮件模板' },
+      { key: '/mail/send',    label: '手动发送' },
+      { key: '/mail/log',     label: '发送日志' }
+    ]
+  }
+])
+
 function onMenuClick({ key }) {
   if (key.startsWith('/placeholder')) return
   router.push(key)
+}
+
+/** 顶部用户下拉菜单（声明式 API，避免 useInjectMenu 上下文丢失） */
+const userDropdownItems = [
+  {
+    key: 'logout',
+    icon: () => h(LogoutOutlined),
+    label: '退出登录'
+  }
+]
+function onUserMenuClick({ key }) {
+  if (key === 'logout') handleLogout()
 }
 function reload() {
   router.replace({ path: '/redirect' + route.fullPath }).catch(() => {
@@ -152,7 +174,10 @@ function handleLogout() {
 </script>
 
 <style lang="scss" scoped>
-.admin-layout { min-height: 100vh; }
+.admin-layout {
+  height: 100vh;
+  overflow: hidden;
+}
 
 /* 侧边栏 */
 .admin-sider {
@@ -162,6 +187,9 @@ function handleLogout() {
   background: #ffffff;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
 }
 .sider-header {
   display: flex;
@@ -266,7 +294,9 @@ function handleLogout() {
 .admin-content {
   margin: 16px;
   padding: 0;
-  min-height: calc(100vh - 96px);
+  flex: 1;
+  min-height: 0;       /* 配合 flex:1 允许内部滚动 */
+  overflow-y: auto;
 }
 
 /* 路由切换过渡 */
