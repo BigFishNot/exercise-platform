@@ -22,6 +22,33 @@
       </a-col>
     </a-row>
 
+    <!-- 今日打卡状态 -->
+    <a-card class="checkin-card" :bordered="false" :class="`is-${checkinStatusKey}`">
+      <div class="checkin-inner">
+        <div class="checkin-icon">
+          <component :is="checkinIcon" />
+        </div>
+        <div class="checkin-body">
+          <div class="checkin-title">
+            <a-tag :color="checkinTagColor" class="status-pill">{{ checkinStatusName }}</a-tag>
+            <span class="checkin-target">每日目标 {{ checkin?.targetMinutes || 0 }} 分钟</span>
+          </div>
+          <div class="checkin-progress">
+            <a-progress
+              :percent="checkin?.completionRate || 0"
+              :stroke-color="checkinProgressColor"
+              :show-info="false"
+              :size="'small'"
+            />
+            <div class="checkin-progress-text">
+              {{ checkin?.actualMinutes || 0 }} / {{ checkin?.targetMinutes || 0 }} 分钟
+              <span class="checkin-rate">({{ checkin?.completionRate || 0 }}%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a-card>
+
     <!-- 进行中：倒计时面板 -->
     <a-card v-if="active" class="active-card" :bordered="false">
       <div class="active-inner">
@@ -162,6 +189,9 @@ import {
   PauseCircleFilled,
   CheckCircleFilled,
   CloseCircleFilled,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  MinusCircleOutlined,
   EditOutlined,
   ThunderboltOutlined,
   RocketOutlined,
@@ -178,6 +208,7 @@ import {
 } from '@ant-design/icons-vue'
 import { exerciseTypeApi } from '@/api/exerciseType'
 import { exerciseRecordApi } from '@/api/exerciseRecord'
+import { exerciseCheckInApi } from '@/api/exerciseCheckIn'
 import { showSuccess, showError, $confirm } from '@/utils/message'
 
 const typeOptions = ref([])
@@ -196,6 +227,33 @@ let timer = null
 const todayActual = ref(0)
 const todayDoneCount = ref(0)
 const todayCalories = ref(0)
+const checkin = ref(null)
+
+const checkinStatusKey = computed(() => {
+  const s = checkin.value?.status
+  if (s === 1) return 'done'
+  if (s === 2) return 'ins'
+  return 'not'
+})
+const checkinStatusName = computed(() => checkin.value?.statusName || '未打卡')
+const checkinIcon = computed(() => {
+  const s = checkin.value?.status
+  if (s === 1) return CheckCircleFilled
+  if (s === 2) return ClockCircleOutlined
+  return MinusCircleOutlined
+})
+const checkinTagColor = computed(() => {
+  const s = checkin.value?.status
+  if (s === 1) return 'success'
+  if (s === 2) return 'warning'
+  return 'default'
+})
+const checkinProgressColor = computed(() => {
+  const s = checkin.value?.status
+  if (s === 1) return { from: '#10b981', to: '#0ea5e9' }
+  if (s === 2) return '#f59e0b'
+  return '#cbd5e1'
+})
 
 const ICON_MAP = {
   ThunderboltOutlined, RocketOutlined, RiseOutlined, PauseOutlined,
@@ -345,6 +403,7 @@ async function autoFinish() {
     elapsed.value = 0
     paused.value = false
     await loadTodaySummary()
+    await loadCheckin()
   } catch (e) {
     showError(e.message || '自动完成失败')
   } finally {
@@ -379,6 +438,14 @@ async function loadTodaySummary() {
     todayCalories.value = Math.round(cal * 100) / 100
     todayDoneCount.value = done
   } catch (e) { /* 忽略 */ }
+}
+
+async function loadCheckin() {
+  try {
+    checkin.value = await exerciseCheckInApi.getToday()
+  } catch (e) {
+    checkin.value = null
+  }
 }
 
 async function onStart() {
@@ -419,6 +486,7 @@ async function onFinish() {
         elapsed.value = 0
         paused.value = false
         await loadTodaySummary()
+        await loadCheckin()
       } catch (e) {
         showError(e.message || '完成失败')
       }
@@ -441,7 +509,7 @@ async function onAbandon() {
 }
 
 onMounted(async () => {
-  await Promise.all([loadTypeOptions(), loadActive(), loadTodaySummary()])
+  await Promise.all([loadTypeOptions(), loadActive(), loadTodaySummary(), loadCheckin()])
 })
 onUnmounted(stopTimer)
 </script>
@@ -470,6 +538,63 @@ onUnmounted(stopTimer)
 }
 .kpi-card--primary .kpi-value { color: var(--color-primary); }
 .kpi-card--success .kpi-value { color: var(--color-success); }
+
+/* 今日打卡卡 */
+.checkin-card {
+  border-left: 4px solid var(--border-color) !important;
+  transition: border-color 0.3s;
+  &.is-done { border-left-color: var(--color-success) !important; }
+  &.is-ins  { border-left-color: var(--color-warning) !important; }
+  &.is-not  { border-left-color: var(--border-color) !important; }
+}
+.checkin-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 4px 0;
+}
+.checkin-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: var(--color-bg-soft);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.checkin-card.is-done .checkin-icon {
+  background: linear-gradient(135deg, var(--color-success), var(--color-accent));
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.30);
+}
+.checkin-card.is-ins .checkin-icon {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+.checkin-body { flex: 1; min-width: 0; }
+.checkin-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.checkin-target {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+.status-pill { border-radius: 999px !important; padding-inline: 12px !important; }
+.checkin-progress-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.checkin-rate {
+  color: var(--text-tertiary);
+  margin-left: 4px;
+}
 
 /* Active 面板 */
 .active-card {

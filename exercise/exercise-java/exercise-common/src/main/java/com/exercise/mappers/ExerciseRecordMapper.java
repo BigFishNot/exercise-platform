@@ -35,4 +35,10 @@ public interface ExerciseRecordMapper {
     /** 当日累计有效时长（仅 DONE） */
     Integer sumTodayActualSeconds(@Param("userId") String userId,
                                   @Param("exerciseDate") Date exerciseDate);
+
+    /** 指定日期范围内每天的累计有效时长（仅 DONE），用于阶段日历聚合 */
+    List<java.util.Map<String, Object>> sumActualSecondsByDateRange(
+            @Param("userId") String userId,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate);
 }

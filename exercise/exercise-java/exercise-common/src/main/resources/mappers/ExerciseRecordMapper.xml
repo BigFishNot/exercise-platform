@@ -81,4 +81,13 @@
         FROM exercise_record
         WHERE user_id = #{userId} AND exercise_date = #{exerciseDate} AND status = 2
     </select>
+
+    <select id="sumActualSecondsByDateRange" resultType="java.util.Map">
+        SELECT exercise_date AS date, COALESCE(SUM(actual_seconds), 0) AS total
+        FROM exercise_record
+        WHERE user_id = #{userId}
+          AND status = 2
+          AND exercise_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY exercise_date
+    </select>
 </mapper>

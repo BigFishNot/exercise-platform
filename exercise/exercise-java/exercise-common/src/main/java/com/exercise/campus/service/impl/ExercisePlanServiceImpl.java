@@ -11,6 +11,7 @@ import com.exercise.campus.entity.vo.PlanVO;
 import com.exercise.campus.enums.PlanStatusEnum;
 import com.exercise.campus.enums.ResponseCodeEnum;
 import com.exercise.campus.exception.BusinessException;
+import com.exercise.campus.service.ExerciseCheckInService;
 import com.exercise.campus.service.ExercisePlanService;
 import com.exercise.campus.vo.PageResultVO;
 import com.exercise.mappers.ExercisePlanMapper;
@@ -18,6 +19,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -37,6 +39,11 @@ public class ExercisePlanServiceImpl implements ExercisePlanService {
 
     @Autowired
     private ExercisePlanMapper exercisePlanMapper;
+
+    /** @Lazy 打破 PlanServiceImpl ↔ CheckInServiceImpl 的循环依赖 */
+    @Autowired
+    @Lazy
+    private ExerciseCheckInService exerciseCheckInService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -116,6 +123,11 @@ public class ExercisePlanServiceImpl implements ExercisePlanService {
     }
 
     @Override
+    public ExercisePlan loadOngoing(String userId) {
+        return exercisePlanMapper.selectOngoingByUserId(userId);
+    }
+
+    @Override
     public List<PlanVO> listByUser(String userId) {
         ExercisePlanQuery q = new ExercisePlanQuery();
         q.setUserId(userId);
@@ -136,7 +148,8 @@ public class ExercisePlanServiceImpl implements ExercisePlanService {
         if (!po.getUserId().equals(userId)) {
             throw new BusinessException(ResponseCodeEnum.FORBIDDEN);
         }
-        List<PlanCalendarDayVO> days = buildCalendarDays(po);
+        // 委托给 CheckInService 计算每日状态（DONE / INSUFFICIENT / NOT_DONE / FUTURE）
+        List<PlanCalendarDayVO> days = exerciseCheckInService.getPlanCalendar(po);
         return PlanConverter.toCalendarVO(po, days);
     }
 

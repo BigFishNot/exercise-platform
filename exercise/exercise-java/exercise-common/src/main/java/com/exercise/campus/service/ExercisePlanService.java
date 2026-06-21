@@ -27,6 +27,9 @@ public interface ExercisePlanService {
     /** 当前用户当前进行中计划（无则返回 null） */
     PlanVO getCurrent(String userId);
 
+    /** 当前用户当前进行中计划（内部用，不抛错；返回 null 时不抛 RECORD_NOT_EXISTS） */
+    ExercisePlan loadOngoing(String userId);
+
     /** 当前用户所有计划（按开始日期倒序，简化版） */
     List<PlanVO> listByUser(String userId);
 

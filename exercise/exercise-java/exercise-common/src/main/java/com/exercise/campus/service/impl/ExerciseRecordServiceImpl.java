@@ -12,6 +12,7 @@ import com.exercise.campus.enums.ExerciseRecordStatusEnum;
 import com.exercise.campus.enums.ResponseCodeEnum;
 import com.exercise.campus.enums.StatusEnum;
 import com.exercise.campus.exception.BusinessException;
+import com.exercise.campus.service.ExerciseCheckInService;
 import com.exercise.campus.service.ExerciseRecordService;
 import com.exercise.campus.service.ExerciseTypeService;
 import com.exercise.mappers.ExerciseRecordMapper;
@@ -40,6 +41,9 @@ public class ExerciseRecordServiceImpl implements ExerciseRecordService {
 
     @Autowired
     private ExerciseTypeService exerciseTypeService;
+
+    @Autowired
+    private ExerciseCheckInService exerciseCheckInService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -96,6 +100,9 @@ public class ExerciseRecordServiceImpl implements ExerciseRecordService {
 
         log.info("[record:finish] recordId={} actual={}s plan={}s status={} cal={}",
                 dto.getRecordId(), actual, plan, finalStatus, calories);
+
+        // 触发当日打卡重算（按需计算实现下为 no-op；接入缓存表后此处会真正落库）
+        exerciseCheckInService.onRecordFinished(userId, exists.getExerciseDate());
 
         // 回查带出状态
         ExerciseRecord updated = exerciseRecordMapper.selectById(dto.getRecordId());

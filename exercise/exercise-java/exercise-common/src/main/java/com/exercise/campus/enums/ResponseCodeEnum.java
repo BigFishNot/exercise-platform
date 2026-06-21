@@ -46,6 +46,10 @@ public enum ResponseCodeEnum {
     RECORD_HAS_ACTIVE(2303, "fail", "已存在进行中的运动记录，请先结束或放弃"),
     RECORD_NOT_IN_PROGRESS(2304, "fail", "当前记录不在进行中状态，无法完成/放弃"),
     RECORD_DURATION_INVALID(2305, "fail", "时长参数不合法，需在 10-7200 秒之间"),
+
+    /* ========== 打卡判定 ========== */
+    CHECK_IN_NOT_EXISTS(2401, "fail", "打卡记录不存在"),
+    CHECK_IN_NO_PLAN(2402, "fail", "当前用户没有进行中的阶段计划"),
     ;
 
     private final Integer code;
