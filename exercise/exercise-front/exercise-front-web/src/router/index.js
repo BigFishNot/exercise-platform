@@ -32,6 +32,18 @@ const routes = [
         name: 'PlanCalendar',
         component: () => import('@/views/plan/PlanCalendarView.vue'),
         meta: { title: '阶段日历' }
+      },
+      {
+        path: '/exercise',
+        name: 'ExerciseStart',
+        component: () => import('@/views/exercise/ExerciseStartView.vue'),
+        meta: { title: '运动打卡' }
+      },
+      {
+        path: '/exercise/today',
+        name: 'ExerciseToday',
+        component: () => import('@/views/exercise/ExerciseTodayView.vue'),
+        meta: { title: '今日运动' }
       }
     ]
   },

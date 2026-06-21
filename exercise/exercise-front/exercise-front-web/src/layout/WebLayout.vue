@@ -16,7 +16,7 @@
             :key="item.path"
             :to="item.disabled ? '#' : item.path"
             class="nav-link"
-            :class="{ 'is-disabled': item.disabled, 'is-active': $route.path.startsWith(item.path) }"
+            :class="{ 'is-disabled': item.disabled, 'is-active': $route.path === item.path }"
             @click.prevent="!item.disabled && router.push(item.path)"
           >
             <component :is="item.icon" />
@@ -80,6 +80,7 @@ import {
   ThunderboltFilled,
   ProfileOutlined,
   FireOutlined,
+  HistoryOutlined,
   LineChartOutlined,
   AimOutlined
 } from '@ant-design/icons-vue'
@@ -91,10 +92,11 @@ const router = useRouter()
 const loginStore = useLoginStore()
 
 const navItems = [
-  { path: '/plan',      label: '阶段计划', icon: AimOutlined },
-  { path: '/profile',   label: '个人资料', icon: ProfileOutlined },
-  { path: '/exercise',  label: '运动打卡', icon: FireOutlined, disabled: true },
-  { path: '/trend',     label: '趋势分析', icon: LineChartOutlined, disabled: true }
+  { path: '/plan',           label: '阶段计划', icon: AimOutlined },
+  { path: '/exercise',       label: '运动打卡', icon: FireOutlined },
+  { path: '/exercise/today', label: '今日记录', icon: HistoryOutlined },
+  { path: '/profile',        label: '个人资料', icon: ProfileOutlined },
+  { path: '/trend',          label: '趋势分析', icon: LineChartOutlined, disabled: true }
 ]
 
 const nickname = computed(() => loginStore.userInfo?.nickName || '运动达人')

@@ -70,9 +70,6 @@
 
     <a-card v-if="current" class="action-card" :bordered="false">
       <a-space wrap>
-        <a-button type="primary" @click="goCalendar">
-          <CalendarOutlined /> 查看阶段日历
-        </a-button>
         <a-button @click="openTargetModal">
           <EditOutlined /> 修改每日目标
         </a-button>
@@ -87,6 +84,48 @@
           </a-button>
         </a-popconfirm>
       </a-space>
+    </a-card>
+
+    <!-- 阶段日历（直接展示） -->
+    <a-card v-if="current && calendar" class="calendar-card" :bordered="false">
+      <template #title>
+        <div class="cal-title">
+          <CalendarOutlined /> 阶段日历
+          <span class="cal-sub">每日目标 {{ current.dailyTargetMinutes }} 分钟</span>
+        </div>
+      </template>
+      <template #extra>
+        <a-space :size="12" class="cal-legend">
+          <span><i class="dot dot-done" /> 已打卡</span>
+          <span><i class="dot dot-ins" /> 时长不足</span>
+          <span><i class="dot dot-not" /> 未打卡</span>
+          <span><i class="dot dot-future" /> 未来</span>
+          <span><i class="dot dot-today" /> 今天</span>
+        </a-space>
+      </template>
+
+      <div class="cal-week-row">
+        <div v-for="w in weekHeaders" :key="w" class="cal-week-cell">{{ w }}</div>
+      </div>
+
+      <div class="cal-grid">
+        <div
+          v-for="d in calendarWithPad"
+          :key="d.key"
+          class="cal-cell"
+          :class="d.cls"
+        >
+          <template v-if="d.day">
+            <div class="cal-day">{{ d.day }}</div>
+            <div class="cal-status">
+              <span v-if="d.status === 'DONE'" class="cal-badge done">✓</span>
+              <span v-else-if="d.status === 'INSUFFICIENT'" class="cal-badge ins">{{ d.actualMinutes || 0 }}</span>
+              <span v-else-if="d.status === 'NOT_DONE'" class="cal-badge not">·</span>
+              <span v-else class="cal-badge future"></span>
+            </div>
+          </template>
+        </div>
+      </div>
     </a-card>
 
     <!-- 历史计划 -->
@@ -143,6 +182,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import dayjs from 'dayjs'
 import {
   PlusOutlined,
   CalendarOutlined,
@@ -158,9 +198,12 @@ const router = useRouter()
 const loading = ref(false)
 const current = ref(null)
 const history = ref([])
+const calendar = ref(null)
 const targetModalOpen = ref(false)
 const saving = ref(false)
 const targetForm = reactive({ dailyTargetMinutes: 30, remark: '' })
+
+const weekHeaders = ['一', '二', '三', '四', '五', '六', '日']
 
 const statusColor = computed(() => {
   if (!current.value) return 'default'
@@ -179,6 +222,42 @@ const progressColor = computed(() => {
   return { from: '#f59e0b', to: '#10b981' }
 })
 
+/** 把日历数据按周对齐（周一开始），前面补空 */
+const calendarWithPad = computed(() => {
+  if (!calendar.value?.days) return []
+  const days = calendar.value.days
+  if (!days.length) return []
+  const firstDate = new Date(days[0].date)
+  // 0=Sun, 1=Mon ... 转成 0=Mon
+  const firstDow = (firstDate.getDay() + 6) % 7
+  const todayStr = dayjs().format('YYYY-MM-DD')
+  const cells = []
+  for (let i = 0; i < firstDow; i++) {
+    cells.push({ key: `pad-${i}`, day: null, cls: 'is-pad' })
+  }
+  days.forEach((d) => {
+    const isToday = dayjs(d.date).format('YYYY-MM-DD') === todayStr
+    let cls = ''
+    if (d.checkInStatus === 'DONE') cls = 'is-done'
+    else if (d.checkInStatus === 'INSUFFICIENT') cls = 'is-ins'
+    else if (d.checkInStatus === 'NOT_DONE') cls = 'is-not'
+    else cls = 'is-future'
+    if (isToday) cls += ' is-today'
+    cells.push({
+      key: `d-${d.date}`,
+      day: dayjs(d.date).date(),
+      status: d.checkInStatus,
+      actualMinutes: d.actualMinutes,
+      cls
+    })
+  })
+  // 末尾补齐到整周
+  while (cells.length % 7 !== 0) {
+    cells.push({ key: `pad-end-${cells.length}`, day: null, cls: 'is-pad' })
+  }
+  return cells
+})
+
 async function loadData() {
   loading.value = true
   try {
@@ -188,6 +267,15 @@ async function loadData() {
     ])
     current.value = curr || null
     history.value = (all || []).filter((p) => p.status !== 1)
+    if (current.value?.planId) {
+      try {
+        calendar.value = await exercisePlanApi.getCalendar(current.value.planId)
+      } catch (e) {
+        calendar.value = null
+      }
+    } else {
+      calendar.value = null
+    }
   } catch (e) {
     showError(e.message || '加载失败')
   } finally {
@@ -197,9 +285,6 @@ async function loadData() {
 
 function goCreate() {
   router.push('/plan/create')
-}
-function goCalendar() {
-  if (current.value) router.push(`/plan/calendar/${current.value.planId}`)
 }
 function openTargetModal() {
   if (!current.value) return
@@ -315,4 +400,98 @@ onMounted(loadData)
 
 .action-card :deep(.ant-card-body) { padding: 16px 24px; }
 .history-card { margin-top: 0; }
+
+/* 阶段日历 */
+.calendar-card { margin-top: 0; }
+.calendar-card :deep(.ant-card-body) { padding: 0 24px 24px; }
+.cal-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+}
+.cal-sub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+.cal-legend {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  span { display: inline-flex; align-items: center; gap: 4px; }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .dot-done   { background: linear-gradient(135deg, var(--color-success), var(--color-accent)); }
+  .dot-ins    { background: var(--color-warning-light); border: 1px solid var(--color-warning); }
+  .dot-not    { background: var(--color-bg-soft); border: 1px solid var(--border-color); }
+  .dot-future { background: #f8fafc; border: 1px dashed #cbd5e1; }
+  .dot-today  { background: var(--color-primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18); }
+}
+
+.cal-week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cal-week-cell {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+.cal-cell {
+  aspect-ratio: 1.2 / 1;
+  background: var(--color-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+  &:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+  &.is-pad { background: transparent; border: none; pointer-events: none; }
+  &.is-done {
+    background: linear-gradient(135deg, var(--color-success-light), var(--color-accent-light));
+    border-color: transparent;
+  }
+  &.is-ins { background: var(--color-warning-light); border-color: var(--color-warning); }
+  &.is-not { background: var(--color-bg-soft); }
+  &.is-future { background: #f8fafc; border-style: dashed; opacity: 0.65; }
+  &.is-today {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+}
+.cal-day { font-size: 16px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+.cal-status { margin-top: 4px; }
+.cal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  &.done   { background: var(--color-success); color: #fff; }
+  &.ins    { background: var(--color-warning); color: #fff; }
+  &.not    { color: var(--text-tertiary); }
+  &.future { background: transparent; }
+}
 </style>

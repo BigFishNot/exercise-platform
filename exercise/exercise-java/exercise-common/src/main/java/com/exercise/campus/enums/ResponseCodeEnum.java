@@ -39,6 +39,13 @@ public enum ResponseCodeEnum {
     PLAN_HAS_ONGOING(2204, "fail", "已存在进行中的阶段计划，请先取消或结束当前计划"),
     PLAN_NOT_ONGOING(2205, "fail", "当前计划不在进行中状态，无法操作"),
     PLAN_DATE_LOCKED(2206, "fail", "计划已开始，日期区间不可修改"),
+
+    /* ========== 运动记录 ========== */
+    RECORD_NOT_EXISTS(2301, "fail", "运动记录不存在"),
+    RECORD_TYPE_DISABLED(2302, "fail", "该运动类型已停用，无法开始"),
+    RECORD_HAS_ACTIVE(2303, "fail", "已存在进行中的运动记录，请先结束或放弃"),
+    RECORD_NOT_IN_PROGRESS(2304, "fail", "当前记录不在进行中状态，无法完成/放弃"),
+    RECORD_DURATION_INVALID(2305, "fail", "时长参数不合法，需在 10-7200 秒之间"),
     ;
 
     private final Integer code;
