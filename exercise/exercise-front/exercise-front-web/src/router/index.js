@@ -1,0 +1,41 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { getToken } from '@/utils/token'
+
+const routes = [
+  { path: '/login',    name: 'Login',    component: () => import('@/views/auth/LoginView.vue'),    meta: { title: '登录' } },
+  { path: '/register', name: 'Register', component: () => import('@/views/auth/RegisterView.vue'), meta: { title: '注册' } },
+  {
+    path: '/',
+    component: () => import('@/layout/WebLayout.vue'),
+    redirect: '/profile',
+    children: [
+      {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/ProfileView.vue'),
+        meta: { title: '个人资料' }
+      }
+    ]
+  },
+  { path: '/:pathMatch(.*)*', redirect: '/' }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+// 用户端所有页面都需要登录（除登录 / 注册）
+router.beforeEach((to, from, next) => {
+  const token = getToken()
+  const isAuthRoute = to.path === '/login' || to.path === '/register'
+  if (!isAuthRoute && !token) {
+    return next({ path: '/login', query: { redirect: to.fullPath } })
+  }
+  if (isAuthRoute && token) {
+    return next('/')
+  }
+  next()
+})
+
+export default router

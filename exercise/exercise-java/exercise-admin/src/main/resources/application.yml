@@ -1,0 +1,34 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: exercise-admin
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+# MyBatis 配置（与 common 一致；显式声明避免依赖 common jar 打包顺序）
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: com.exercise.campus.entity.po
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+logging:
+  level:
+    root: info
+    com.exercise: debug
+    org.springframework.web: info

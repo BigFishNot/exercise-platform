@@ -1,0 +1,7 @@
+// 暴露给 unplugin-auto-import 注入 SCSS 变量的别名
+// 这里保留向后兼容；颜色等令牌统一在 global.scss 中通过 CSS 变量暴露
+
+$brand-color: #10b981;
+$success-color: #22c55e;
+$warning-color: #f59e0b;
+$danger-color: #ef4444;

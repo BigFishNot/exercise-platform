@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exercise.mappers.UserInfoMapper">
+
+    <resultMap id="userInfoMap" type="com.exercise.campus.entity.po.UserInfo">
+        <id property="userId" column="user_id"/>
+        <result property="account" column="account"/>
+        <result property="email" column="email"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="password" column="password"/>
+        <result property="avatar" column="avatar"/>
+        <result property="gender" column="gender"/>
+        <result property="birthDate" column="birth_date"/>
+        <result property="height" column="height"/>
+        <result property="weight" column="weight"/>
+        <result property="roleType" column="role_type"/>
+        <result property="status" column="status"/>
+        <result property="registerTime" column="register_time"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="columns">
+        user_id, account, email, nick_name, password, avatar, gender, birth_date,
+        height, weight, role_type, status, register_time, last_login_time,
+        create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.exercise.campus.entity.po.UserInfo">
+        INSERT INTO user_info (
+            user_id, account, email, nick_name, password, avatar, gender, birth_date,
+            height, weight, role_type, status, register_time, last_login_time,
+            create_time, update_time
+        ) VALUES (
+            #{userId}, #{account}, #{email}, #{nickName}, #{password}, #{avatar}, #{gender}, #{birthDate},
+            #{height}, #{weight}, #{roleType}, #{status}, #{registerTime}, #{lastLoginTime},
+            NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.exercise.campus.entity.po.UserInfo">
+        UPDATE user_info
+        <set>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthDate != null">birth_date = #{birthDate},</if>
+            <if test="height != null">height = #{height},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE user_info SET password = #{password}, update_time = NOW() WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE user_info SET status = #{status}, update_time = NOW() WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateLastLoginTime">
+        UPDATE user_info SET last_login_time = NOW() WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM user_info WHERE user_id = #{userId}
+    </delete>
+
+    <select id="selectById" resultMap="userInfoMap">
+        SELECT <include refid="columns"/> FROM user_info WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectByAccount" resultMap="userInfoMap">
+        SELECT <include refid="columns"/> FROM user_info WHERE account = #{account} LIMIT 1
+    </select>
+
+    <select id="selectByEmail" resultMap="userInfoMap">
+        SELECT <include refid="columns"/> FROM user_info WHERE email = #{email} LIMIT 1
+    </select>
+
+    <select id="countByAccount" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM user_info WHERE account = #{account}
+    </select>
+
+    <select id="countByEmail" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM user_info WHERE email = #{email}
+    </select>
+
+    <select id="selectList" parameterType="com.exercise.campus.entity.query.UserInfoQuery" resultMap="userInfoMap">
+        SELECT <include refid="columns"/> FROM user_info
+        <where>
+            <if test="nickNameFuzzy != null and nickNameFuzzy != ''">
+                AND nick_name LIKE CONCAT('%', #{nickNameFuzzy}, '%')
+            </if>
+            <if test="account != null and account != ''">
+                AND account = #{account}
+            </if>
+            <if test="roleType != null">
+                AND role_type = #{roleType}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countByQuery" parameterType="com.exercise.campus.entity.query.UserInfoQuery" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM user_info
+        <where>
+            <if test="nickNameFuzzy != null and nickNameFuzzy != ''">
+                AND nick_name LIKE CONCAT('%', #{nickNameFuzzy}, '%')
+            </if>
+            <if test="account != null and account != ''">
+                AND account = #{account}
+            </if>
+            <if test="roleType != null">
+                AND role_type = #{roleType}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+</mapper>
