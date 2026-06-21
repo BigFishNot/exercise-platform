@@ -56,6 +56,12 @@ const routes = [
         name: 'WeightGoal',
         component: () => import('@/views/goal/WeightGoalView.vue'),
         meta: { title: '减肥目标' }
+      },
+      {
+        path: '/stats',
+        name: 'Stats',
+        component: () => import('@/views/stats/StatsView.vue'),
+        meta: { title: '趋势分析' }
       }
     ]
   },

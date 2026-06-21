@@ -38,4 +38,8 @@ public interface UserInfoMapper {
     List<UserInfo> selectList(UserInfoQuery query);
 
     Integer countByQuery(UserInfoQuery query);
+
+    /* === 平台总览统计 === */
+
+    java.util.Map<String, Object> aggregatePlatformUsers(@Param("sinceDate") java.util.Date sinceDate);
 }

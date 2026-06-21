@@ -98,6 +98,7 @@ const navItems = [
   { path: '/exercise/today', label: '今日记录', icon: HistoryOutlined },
   { path: '/body',           label: '身体数据', icon: LineChartOutlined },
   { path: '/goal',           label: '减肥目标', icon: TrophyOutlined },
+  { path: '/stats',          label: '趋势分析', icon: LineChartOutlined },
   { path: '/profile',        label: '个人资料', icon: ProfileOutlined }
 ]
 

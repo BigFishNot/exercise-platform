@@ -66,6 +66,9 @@ public enum ResponseCodeEnum {
     /* ========== AI 鼓励 ========== */
     AI_ENCOURAGE_LIMIT_EXCEEDED(2701, "fail", "今日鼓励次数已用完（每天最多 3 次），明天再来吧～"),
     AI_ENCOURAGE_FAILED(2702, "fail", "生成鼓励语失败"),
+
+    /* ========== 统计 ========== */
+    STATISTICS_INTERNAL_ERROR(2801, "fail", "统计聚合失败"),
     ;
 
     private final Integer code;

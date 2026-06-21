@@ -98,4 +98,8 @@
         </where>
         ORDER BY start_date DESC, create_time DESC
     </select>
+
+    <select id="countOngoing" resultType="long">
+        SELECT COUNT(1) FROM exercise_plan WHERE status = 1
+    </select>
 </mapper>

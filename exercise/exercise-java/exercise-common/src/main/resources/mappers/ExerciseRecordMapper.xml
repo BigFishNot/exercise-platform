@@ -90,4 +90,68 @@
           AND exercise_date BETWEEN #{startDate} AND #{endDate}
         GROUP BY exercise_date
     </select>
+
+    <select id="aggregateUserStats" resultType="java.util.Map">
+        SELECT
+            COUNT(1)                                              AS totalRecords,
+            COALESCE(SUM(actual_seconds), 0)                      AS totalActiveSeconds,
+            COALESCE(SUM(calories), 0)                            AS totalCalories,
+            COUNT(DISTINCT exercise_date)                          AS activeDays
+        FROM exercise_record
+        WHERE user_id = #{userId} AND status = 2
+    </select>
+
+    <select id="countCheckInByDateRange" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN actual_seconds &gt;= (SELECT daily_target_minutes * 60 FROM exercise_plan WHERE plan_id = (
+                SELECT plan_id FROM exercise_plan WHERE user_id = #{userId} AND status = 1 LIMIT 1
+            )) THEN 1 ELSE 0 END) AS doneDays,
+            SUM(CASE WHEN actual_seconds &gt; 0 AND actual_seconds &lt; (SELECT daily_target_minutes * 60 FROM exercise_plan WHERE plan_id = (
+                SELECT plan_id FROM exercise_plan WHERE user_id = #{userId} AND status = 1 LIMIT 1
+            )) THEN 1 ELSE 0 END) AS insufficientDays
+        FROM exercise_record
+        WHERE user_id = #{userId}
+          AND exercise_date BETWEEN #{startDate} AND #{endDate}
+          AND status = 2
+    </select>
+
+    <select id="countActiveDaysSince" resultType="int">
+        SELECT COUNT(DISTINCT exercise_date)
+        FROM exercise_record
+        WHERE user_id = #{userId}
+          AND status = 2
+          AND exercise_date &gt;= #{sinceDate}
+    </select>
+
+    <select id="aggregatePlatformRecords" resultType="java.util.Map">
+        SELECT
+            COUNT(1)                                              AS totalRecords,
+            COALESCE(SUM(CASE WHEN exercise_date = CURDATE() THEN 1 ELSE 0 END), 0) AS todayRecordCount,
+            COALESCE(SUM(CASE WHEN exercise_date = CURDATE() AND status = 2 THEN 1 ELSE 0 END), 0) AS todayDoneCount,
+            COALESCE(SUM(CASE WHEN exercise_date &gt;= #{sinceDate} THEN 1 ELSE 0 END), 0) AS recordsSince,
+            COALESCE(SUM(CASE WHEN status = 2 THEN actual_seconds ELSE 0 END), 0) AS totalActiveSeconds,
+            COALESCE(SUM(CASE WHEN status = 2 THEN calories ELSE 0 END), 0) AS totalCalories
+        FROM exercise_record
+    </select>
+
+    <select id="countActiveUsersSince" resultType="long">
+        SELECT COUNT(DISTINCT user_id)
+        FROM exercise_record
+        WHERE status = 2 AND exercise_date &gt;= #{sinceDate}
+    </select>
+
+    <select id="topExerciseTypes" resultType="java.util.Map">
+        SELECT
+            t.type_id     AS typeId,
+            t.name        AS typeName,
+            t.icon        AS typeIcon,
+            COUNT(1)      AS recordCount,
+            COALESCE(SUM(r.actual_seconds), 0) AS totalSeconds
+        FROM exercise_record r
+        JOIN exercise_type t ON r.type_id = t.type_id
+        WHERE r.status = 2
+        GROUP BY t.type_id, t.name, t.icon
+        ORDER BY recordCount DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

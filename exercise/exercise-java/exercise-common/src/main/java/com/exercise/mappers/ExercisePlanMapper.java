@@ -31,4 +31,7 @@ public interface ExercisePlanMapper {
     int countByQuery(ExercisePlanQuery query);
 
     List<ExercisePlan> selectList(ExercisePlanQuery query);
+
+    /** 平台总览：当前进行中计划数 */
+    Long countOngoing();
 }
