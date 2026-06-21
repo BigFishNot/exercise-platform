@@ -61,19 +61,26 @@
         />
       </a-form-item>
 
-      <a-form-item label="时长档位" extra="可选，输入秒数后回车添加；可拖拽排序">
+      <a-form-item label="时长档位" extra="可选，输入分钟数后回车添加；如 1, 3, 5, 10 表示 1/3/5/10 分钟">
         <a-select
           mode="tags"
           v-model:value="durationChips"
           :token-separators="[',']"
-          placeholder="输入秒数，回车添加"
+          placeholder="输入分钟数，回车添加"
           @change="onChipsChange"
         >
-          <template #tagRender="{ label }">
-            <a-tag closable color="processing">{{ formatSeconds(label.value) }}</a-tag>
+          <template #tagRender="slotProps">
+            <a-tag
+              :closable="slotProps.closable"
+              color="processing"
+              @close="slotProps.onClose"
+              style="margin-right: 4px"
+            >
+              {{ formatMinutes(slotProps.label?.value ?? slotProps.label) }}
+            </a-tag>
           </template>
         </a-select>
-        <div class="duration-hint">已添加 {{ durationChips.length }} 个档位</div>
+        <div class="duration-hint">已添加 {{ durationChips.length }} 个档位（单位：分钟，保存时自动 ×60 转秒）</div>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -125,16 +132,16 @@ const iconOptions = [
   { value: 'TrophyOutlined',      label: '🏆 奖杯' }
 ]
 
-function formatSeconds(v) {
+function formatMinutes(v) {
   const n = Number(v)
-  if (!Number.isFinite(n)) return v
-  if (n < 60) return `${n} 秒`
-  if (n % 60 === 0) return `${n / 60} 分钟`
-  return `${Math.floor(n / 60)} 分 ${n % 60} 秒`
+  if (!Number.isFinite(n) || n <= 0) return v
+  if (n < 1) return `${Math.round(n * 60)} 秒`
+  if (Number.isInteger(n)) return `${n} 分钟`
+  return `${n} 分钟`
 }
 
 function onChipsChange(values) {
-  // mode="tags" 给的是字符串数组，转 number 并去重
+  // mode="tags" 给的是字符串数组，按"分钟"解析并去重
   const arr = Array.from(new Set(values.map((v) => Number(v)).filter((n) => Number.isFinite(n) && n > 0)))
   durationChips.value = arr.map(String)
 }
@@ -151,8 +158,9 @@ function open(record) {
     form.sort = record.sort || 0
     try {
       const arr = record.durationLevels ? JSON.parse(record.durationLevels) : []
+      // 秒 -> 分钟（向上取整，避免出现 0.x 分钟）
       durationChips.value = (Array.isArray(arr) ? arr : [])
-        .map((it) => String(it.seconds))
+        .map((it) => String(Math.max(1, Math.round((it.seconds || 0) / 60))))
         .filter(Boolean)
     } catch {
       durationChips.value = []
@@ -176,11 +184,14 @@ async function onSubmit() {
   await formRef.value.validate()
   saving.value = true
   try {
-    const durationLevels = durationChips.value.map((v, idx) => ({
-      label: formatSeconds(v),
-      seconds: Number(v),
-      sort: idx + 1
-    }))
+    const durationLevels = durationChips.value.map((v, idx) => {
+      const minutes = Number(v)
+      return {
+        label: `${minutes} 分钟`,
+        seconds: minutes * 60,
+        sort: idx + 1
+      }
+    })
     const payload = {
       typeId: form.typeId,
       name: form.name,
