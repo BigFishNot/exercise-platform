@@ -14,12 +14,14 @@
           <router-link
             v-for="item in navItems"
             :key="item.path"
-            :to="item.path"
+            :to="item.disabled ? '#' : item.path"
             class="nav-link"
-            active-class="is-active"
+            :class="{ 'is-disabled': item.disabled, 'is-active': $route.path.startsWith(item.path) }"
+            @click.prevent="!item.disabled && router.push(item.path)"
           >
             <component :is="item.icon" />
             <span>{{ item.label }}</span>
+            <a-tag v-if="item.disabled" color="default" class="nav-soon">敬请期待</a-tag>
           </router-link>
         </nav>
 
@@ -89,10 +91,10 @@ const router = useRouter()
 const loginStore = useLoginStore()
 
 const navItems = [
-  { path: '/profile',   label: '个人资料', icon: ProfileOutlined },
   { path: '/plan',      label: '阶段计划', icon: AimOutlined },
-  { path: '/exercise',  label: '运动打卡', icon: FireOutlined },
-  { path: '/trend',     label: '趋势分析', icon: LineChartOutlined }
+  { path: '/profile',   label: '个人资料', icon: ProfileOutlined },
+  { path: '/exercise',  label: '运动打卡', icon: FireOutlined, disabled: true },
+  { path: '/trend',     label: '趋势分析', icon: LineChartOutlined, disabled: true }
 ]
 
 const nickname = computed(() => loginStore.userInfo?.nickName || '运动达人')
@@ -174,6 +176,18 @@ async function handleLogout() {
     background: var(--color-primary-light);
     color: var(--color-primary);
   }
+  &.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    &:hover { background: transparent; color: var(--text-secondary); }
+  }
+}
+.nav-soon {
+  margin-left: 4px;
+  font-size: 10px;
+  padding: 0 6px;
+  border-radius: 8px !important;
+  line-height: 16px;
 }
 
 .web-user { display: flex; align-items: center; gap: 12px; }

@@ -14,6 +14,24 @@ const routes = [
         name: 'Profile',
         component: () => import('@/views/profile/ProfileView.vue'),
         meta: { title: '个人资料' }
+      },
+      {
+        path: '/plan',
+        name: 'PlanCurrent',
+        component: () => import('@/views/plan/PlanCurrentView.vue'),
+        meta: { title: '阶段计划' }
+      },
+      {
+        path: '/plan/create',
+        name: 'PlanCreate',
+        component: () => import('@/views/plan/PlanCreateView.vue'),
+        meta: { title: '创建阶段计划' }
+      },
+      {
+        path: '/plan/calendar/:planId',
+        name: 'PlanCalendar',
+        component: () => import('@/views/plan/PlanCalendarView.vue'),
+        meta: { title: '阶段日历' }
       }
     ]
   },

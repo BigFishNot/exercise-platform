@@ -31,6 +31,14 @@ public enum ResponseCodeEnum {
     EXERCISE_TYPE_NAME_DUPLICATE(2102, "fail", "运动类型名称重复"),
     EXERCISE_TYPE_REFERENCED(2103, "fail", "该运动类型已被运动记录引用，无法删除"),
     EXERCISE_TYPE_PARAM_INVALID(2104, "fail", "运动类型参数不合法"),
+
+    /* ========== 阶段计划 ========== */
+    PLAN_NOT_EXISTS(2201, "fail", "阶段计划不存在"),
+    PLAN_DATE_INVALID(2202, "fail", "开始日期需 ≥ 当日，且结束日期 > 开始日期，区间 1-60 天"),
+    PLAN_TARGET_INVALID(2203, "fail", "每日目标时长需在 1-600 分钟之间"),
+    PLAN_HAS_ONGOING(2204, "fail", "已存在进行中的阶段计划，请先取消或结束当前计划"),
+    PLAN_NOT_ONGOING(2205, "fail", "当前计划不在进行中状态，无法操作"),
+    PLAN_DATE_LOCKED(2206, "fail", "计划已开始，日期区间不可修改"),
     ;
 
     private final Integer code;

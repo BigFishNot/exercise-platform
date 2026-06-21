@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exercise.mappers.ExercisePlanMapper">
+
+    <resultMap id="exercisePlanMap" type="com.exercise.campus.entity.po.ExercisePlan">
+        <id property="planId" column="plan_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="dailyTargetMinutes" column="daily_target_minutes"/>
+        <result property="remark" column="remark"/>
+        <result property="status" column="status"/>
+        <result property="ongoingUnique" column="ongoing_unique"/>
+        <result property="finishTime" column="finish_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="allColumns">
+        plan_id, user_id, start_date, end_date, daily_target_minutes,
+        remark, status, ongoing_unique, finish_time, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.exercise.campus.entity.po.ExercisePlan">
+        INSERT INTO exercise_plan (
+            plan_id, user_id, start_date, end_date, daily_target_minutes,
+            remark, status, ongoing_unique, create_time, update_time
+        ) VALUES (
+            #{planId}, #{userId}, #{startDate}, #{endDate}, #{dailyTargetMinutes},
+            #{remark}, #{status}, #{ongoingUnique}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.exercise.campus.entity.po.ExercisePlan">
+        UPDATE exercise_plan
+        <set>
+            <if test="dailyTargetMinutes != null">daily_target_minutes = #{dailyTargetMinutes},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = NOW()
+        </set>
+        WHERE plan_id = #{planId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE exercise_plan
+        SET status = #{status},
+            ongoing_unique = #{ongoingUnique},
+            finish_time = #{finishTime},
+            update_time = NOW()
+        WHERE plan_id = #{planId}
+    </update>
+
+    <select id="selectById" resultMap="exercisePlanMap">
+        SELECT <include refid="allColumns"/> FROM exercise_plan WHERE plan_id = #{planId}
+    </select>
+
+    <select id="selectOngoingByUserId" resultMap="exercisePlanMap">
+        SELECT <include refid="allColumns"/>
+        FROM exercise_plan
+        WHERE user_id = #{userId} AND status = 1
+        LIMIT 1
+    </select>
+
+    <select id="countByQuery" resultType="int">
+        SELECT COUNT(1) FROM exercise_plan
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="startDateFrom != null and startDateFrom != ''">
+                AND start_date &gt;= #{startDateFrom}
+            </if>
+            <if test="startDateTo != null and startDateTo != ''">
+                AND start_date &lt;= #{startDateTo}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectList" resultMap="exercisePlanMap">
+        SELECT <include refid="allColumns"/> FROM exercise_plan
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="startDateFrom != null and startDateFrom != ''">
+                AND start_date &gt;= #{startDateFrom}
+            </if>
+            <if test="startDateTo != null and startDateTo != ''">
+                AND start_date &lt;= #{startDateTo}
+            </if>
+        </where>
+        ORDER BY start_date DESC, create_time DESC
+    </select>
+</mapper>
