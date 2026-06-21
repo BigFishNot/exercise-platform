@@ -42,4 +42,9 @@ public interface UserInfoMapper {
     /* === 平台总览统计 === */
 
     java.util.Map<String, Object> aggregatePlatformUsers(@Param("sinceDate") java.util.Date sinceDate);
+
+    /* === 批量：定时任务按状态查用户 === */
+
+    List<UserInfo> selectByStatus(@Param("status") Integer status,
+                                @Param("limit") Integer limit);
 }

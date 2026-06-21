@@ -128,4 +128,12 @@
             </if>
         </where>
     </select>
+
+    <select id="selectByStatus" resultMap="userInfoMap">
+        SELECT <include refid="columns"/>
+        FROM user_info
+        WHERE status = #{status}
+        ORDER BY create_time ASC
+        LIMIT #{limit}
+    </select>
 </mapper>

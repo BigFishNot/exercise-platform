@@ -3,13 +3,16 @@ package com.exercise.admin;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 管理端启动类
  * 扫描范围覆盖 com.exercise（包含 common 模块），Mapper 扫描由 common 的 MybatisConfig 提供
+ * @EnableScheduling 启用定时任务（邮件推送等）
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.exercise"})
+@EnableScheduling
 public class ExerciseAdminApplication {
 
     public static void main(String[] args) {

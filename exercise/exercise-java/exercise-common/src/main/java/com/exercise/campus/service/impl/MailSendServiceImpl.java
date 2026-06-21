@@ -47,6 +47,8 @@ public class MailSendServiceImpl implements MailSendService {
     @Autowired private MailLogService mailLogService;
     @Autowired private MailSender mailSender;
     @Autowired private UserInfoService userInfoService;
+    @Autowired private com.exercise.campus.service.ExerciseCheckInService exerciseCheckInService;
+    @Autowired private com.exercise.campus.service.ExercisePlanService exercisePlanService;
 
     @Override
     public MailSendResultVO sendManual(String operatorId, MailSendRequestDTO dto) {
@@ -164,11 +166,38 @@ public class MailSendServiceImpl implements MailSendService {
         vars.put("account", nullSafe(user.getAccount()));
         vars.put("email", nullSafe(user.getEmail()));
         vars.put("date", DATE_FMT.format(new Date()));
-        // 占位（接 checkIn 后回填）
-        vars.put("actualMinutes", "0");
-        vars.put("targetMinutes", "0");
-        vars.put("planStartDate", "");
-        vars.put("planEndDate", "");
+
+        // 回填实际数据：从 checkIn 拿今日实际/目标, 从 plan 拿起止日期
+        try {
+            com.exercise.campus.entity.vo.CheckInTodayVO ck = exerciseCheckInService.getToday(user.getUserId());
+            if (ck != null) {
+                vars.put("actualMinutes", String.valueOf(ck.getActualMinutes() == null ? 0 : ck.getActualMinutes()));
+                vars.put("targetMinutes", String.valueOf(ck.getTargetMinutes() == null ? 0 : ck.getTargetMinutes()));
+            } else {
+                vars.put("actualMinutes", "0");
+                vars.put("targetMinutes", "0");
+            }
+        } catch (Exception e) {
+            vars.put("actualMinutes", "0");
+            vars.put("targetMinutes", "0");
+        }
+
+        try {
+            com.exercise.campus.entity.po.ExercisePlan plan = exercisePlanService.loadOngoing(user.getUserId());
+            if (plan != null) {
+                vars.put("planStartDate", plan.getStartDate() == null ? ""
+                        : DATE_FMT.format(plan.getStartDate()));
+                vars.put("planEndDate", plan.getEndDate() == null ? ""
+                        : DATE_FMT.format(plan.getEndDate()));
+            } else {
+                vars.put("planStartDate", "");
+                vars.put("planEndDate", "");
+            }
+        } catch (Exception e) {
+            vars.put("planStartDate", "");
+            vars.put("planEndDate", "");
+        }
+
         return vars;
     }
 
