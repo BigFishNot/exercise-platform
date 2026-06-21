@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exercise.mappers.ExerciseTypeMapper">
+
+    <resultMap id="exerciseTypeMap" type="com.exercise.campus.entity.po.ExerciseType">
+        <id property="typeId" column="type_id"/>
+        <result property="name" column="name"/>
+        <result property="icon" column="icon"/>
+        <result property="defaultSeconds" column="default_seconds"/>
+        <result property="durationLevels" column="duration_levels"/>
+        <result property="caloriesPerMinute" column="calories_per_minute"/>
+        <result property="sort" column="sort"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="allColumns">
+        type_id, name, icon, default_seconds, duration_levels,
+        calories_per_minute, sort, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.exercise.campus.entity.po.ExerciseType">
+        INSERT INTO exercise_type (
+            type_id, name, icon, default_seconds, duration_levels,
+            calories_per_minute, sort, status, create_time, update_time
+        ) VALUES (
+            #{typeId}, #{name}, #{icon}, #{defaultSeconds}, #{durationLevels},
+            #{caloriesPerMinute}, #{sort}, #{status}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.exercise.campus.entity.po.ExerciseType">
+        UPDATE exercise_type
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="defaultSeconds != null">default_seconds = #{defaultSeconds},</if>
+            <if test="durationLevels != null">duration_levels = #{durationLevels},</if>
+            <if test="caloriesPerMinute != null">calories_per_minute = #{caloriesPerMinute},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE type_id = #{typeId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE exercise_type SET status = #{status}, update_time = NOW() WHERE type_id = #{typeId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM exercise_type WHERE type_id = #{typeId}
+    </delete>
+
+    <select id="selectById" resultMap="exerciseTypeMap">
+        SELECT <include refid="allColumns"/> FROM exercise_type WHERE type_id = #{typeId}
+    </select>
+
+    <select id="countByName" resultType="int">
+        SELECT COUNT(1) FROM exercise_type WHERE name = #{name}
+    </select>
+
+    <select id="countRef" resultType="int">
+        SELECT 0
+    </select>
+
+    <select id="countByQuery" resultType="int">
+        SELECT COUNT(1) FROM exercise_type
+        <where>
+            <if test="nameFuzzy != null and nameFuzzy != ''">
+                AND name LIKE CONCAT('%', #{nameFuzzy}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectList" resultMap="exerciseTypeMap">
+        SELECT <include refid="allColumns"/> FROM exercise_type
+        <where>
+            <if test="nameFuzzy != null and nameFuzzy != ''">
+                AND name LIKE CONCAT('%', #{nameFuzzy}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY sort ASC, create_time ASC
+    </select>
+
+    <select id="selectEnabled" resultMap="exerciseTypeMap">
+        SELECT <include refid="allColumns"/>
+        FROM exercise_type
+        WHERE status = 1
+        ORDER BY sort ASC, create_time ASC
+    </select>
+</mapper>

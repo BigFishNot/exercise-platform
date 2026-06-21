@@ -18,6 +18,12 @@ const routes = [
         name: 'UserList',
         component: () => import('@/views/user/UserListView.vue'),
         meta: { requireLogin: true, title: '用户管理' }
+      },
+      {
+        path: '/exerciseType/list',
+        name: 'ExerciseTypeList',
+        component: () => import('@/views/exerciseType/ExerciseTypeListView.vue'),
+        meta: { requireLogin: true, title: '运动类型' }
       }
     ]
   },

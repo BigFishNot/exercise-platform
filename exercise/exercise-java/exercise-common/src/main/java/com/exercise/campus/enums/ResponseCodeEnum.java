@@ -25,6 +25,12 @@ public enum ResponseCodeEnum {
     NICKNAME_INVALID(1006, "fail", "昵称长度需为 2-20 字符"),
 
     ROLE_NOT_MATCH(2001, "fail", "角色与登录入口不匹配"),
+
+    /* ========== 运动类型 ========== */
+    EXERCISE_TYPE_NOT_EXISTS(2101, "fail", "运动类型不存在"),
+    EXERCISE_TYPE_NAME_DUPLICATE(2102, "fail", "运动类型名称重复"),
+    EXERCISE_TYPE_REFERENCED(2103, "fail", "该运动类型已被运动记录引用，无法删除"),
+    EXERCISE_TYPE_PARAM_INVALID(2104, "fail", "运动类型参数不合法"),
     ;
 
     private final Integer code;

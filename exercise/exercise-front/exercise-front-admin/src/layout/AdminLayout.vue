@@ -26,10 +26,9 @@
           <template #icon><TeamOutlined /></template>
           用户管理
         </a-menu-item>
-        <a-menu-item key="/placeholder-1" disabled>
+        <a-menu-item key="/exerciseType/list">
           <template #icon><FireOutlined /></template>
           运动类型
-          <span class="menu-soon">敬请期待</span>
         </a-menu-item>
         <a-menu-item key="/placeholder-2" disabled>
           <template #icon><MailOutlined /></template>
