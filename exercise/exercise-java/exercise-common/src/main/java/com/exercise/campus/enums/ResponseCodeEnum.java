@@ -50,6 +50,10 @@ public enum ResponseCodeEnum {
     /* ========== 打卡判定 ========== */
     CHECK_IN_NOT_EXISTS(2401, "fail", "打卡记录不存在"),
     CHECK_IN_NO_PLAN(2402, "fail", "当前用户没有进行中的阶段计划"),
+
+    /* ========== 身体数据 ========== */
+    BODY_DATA_WEIGHT_INVALID(2501, "fail", "体重需在 0-500 kg 之间"),
+    BODY_DATA_HEIGHT_REQUIRED(2502, "fail", "请先在个人资料设置身高"),
     ;
 
     private final Integer code;

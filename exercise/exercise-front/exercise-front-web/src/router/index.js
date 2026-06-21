@@ -7,7 +7,7 @@ const routes = [
   {
     path: '/',
     component: () => import('@/layout/WebLayout.vue'),
-    redirect: '/profile',
+    redirect: '/plan',
     children: [
       {
         path: '/profile',
@@ -44,6 +44,12 @@ const routes = [
         name: 'ExerciseToday',
         component: () => import('@/views/exercise/ExerciseTodayView.vue'),
         meta: { title: '今日运动' }
+      },
+      {
+        path: '/body',
+        name: 'BodyData',
+        component: () => import('@/views/body/BodyDataView.vue'),
+        meta: { title: '身体数据' }
       }
     ]
   },

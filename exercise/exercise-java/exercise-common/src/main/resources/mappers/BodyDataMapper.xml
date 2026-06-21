@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exercise.mappers.BodyDataMapper">
+
+    <resultMap id="bodyDataMap" type="com.exercise.campus.entity.po.BodyData">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="recordDate" column="record_date"/>
+        <result property="weight" column="weight"/>
+        <result property="bmi" column="bmi"/>
+        <result property="source" column="source"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="allColumns">
+        id, user_id, record_date, weight, bmi, source, remark, create_time, update_time
+    </sql>
+
+    <insert id="upsert" parameterType="com.exercise.campus.entity.po.BodyData">
+        INSERT INTO body_data (
+            user_id, record_date, weight, bmi, source, remark, create_time, update_time
+        ) VALUES (
+            #{userId}, #{recordDate}, #{weight}, #{bmi},
+            #{source}, #{remark}, NOW(), NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            weight = VALUES(weight),
+            bmi = VALUES(bmi),
+            source = VALUES(source),
+            remark = VALUES(remark),
+            update_time = NOW()
+    </insert>
+
+    <update id="updateById" parameterType="com.exercise.campus.entity.po.BodyData">
+        UPDATE body_data
+        <set>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="bmi != null">bmi = #{bmi},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM body_data WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="bodyDataMap">
+        SELECT <include refid="allColumns"/> FROM body_data WHERE id = #{id}
+    </select>
+
+    <select id="selectToday" resultMap="bodyDataMap">
+        SELECT <include refid="allColumns"/>
+        FROM body_data
+        WHERE user_id = #{userId} AND record_date = #{recordDate}
+        LIMIT 1
+    </select>
+
+    <select id="selectTrendByRange" resultMap="bodyDataMap">
+        SELECT <include refid="allColumns"/>
+        FROM body_data
+        WHERE user_id = #{userId}
+          AND record_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY record_date ASC
+    </select>
+
+    <select id="selectRecent" resultMap="bodyDataMap">
+        SELECT <include refid="allColumns"/>
+        FROM body_data
+        WHERE user_id = #{userId}
+        ORDER BY record_date DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

@@ -95,8 +95,8 @@ const navItems = [
   { path: '/plan',           label: '阶段计划', icon: AimOutlined },
   { path: '/exercise',       label: '运动打卡', icon: FireOutlined },
   { path: '/exercise/today', label: '今日记录', icon: HistoryOutlined },
-  { path: '/profile',        label: '个人资料', icon: ProfileOutlined },
-  { path: '/trend',          label: '趋势分析', icon: LineChartOutlined, disabled: true }
+  { path: '/body',           label: '身体数据', icon: LineChartOutlined },
+  { path: '/profile',        label: '个人资料', icon: ProfileOutlined }
 ]
 
 const nickname = computed(() => loginStore.userInfo?.nickName || '运动达人')
