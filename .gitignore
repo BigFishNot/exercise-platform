@@ -1,0 +1,67 @@
+# ===== 顶层忽略 =====
+# 适用于 monorepo：根目录只忽略 IDE / OS / 顶层临时文件
+# 各子项目（java / 前端）由各自的 .gitignore 处理专项内容
+
+# ---- 编辑器 / IDE ----
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+nbproject/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---- 临时 / 日志 ----
+*.log
+*.tmp
+*.bak
+*.cache
+*.pid
+*.seed
+*.pid.lock
+
+# ---- 密钥 / 环境 ----
+# 顶层 .env 永远不进库（前端多在工程内，详见各前端 .gitignore）
+.env
+.env.*
+!.env.example
+
+# ---- 构建产物兜底 ----
+# 兜底处理：若顶层误放了 build/dist/target，也忽略
+/build/
+/dist/
+/target/
+
+# ---- Node 兜底（前端工程内部还有更细的 .gitignore） ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ---- Java 兜底（Java 工程内部还有更细的 .gitignore） ----
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# ---- Git 自身（注意：不要忽略 .gitignore 自身） ----
+.git/
+.gitattributes
+.gitmodules
+
+# ---- Claude / AI 工具本地缓存 ----
+.claude/settings.local.json
+.claude/.playwright-mcp/
+.claude/agents/*.local.md
