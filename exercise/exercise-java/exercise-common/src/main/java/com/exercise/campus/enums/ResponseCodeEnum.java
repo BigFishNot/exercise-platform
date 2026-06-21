@@ -54,6 +54,14 @@ public enum ResponseCodeEnum {
     /* ========== 身体数据 ========== */
     BODY_DATA_WEIGHT_INVALID(2501, "fail", "体重需在 0-500 kg 之间"),
     BODY_DATA_HEIGHT_REQUIRED(2502, "fail", "请先在个人资料设置身高"),
+
+    /* ========== 减肥目标 ========== */
+    GOAL_NOT_EXISTS(2601, "fail", "减肥目标不存在"),
+    GOAL_WEIGHT_INVALID(2602, "fail", "目标体重需在 0-500 kg 之间"),
+    GOAL_DATE_INVALID(2603, "fail", "目标日期需 ≥ 当日"),
+    GOAL_BODY_FAT_INVALID(2604, "fail", "目标体脂率需在 0-100% 之间"),
+    GOAL_HAS_ACTIVE(2605, "fail", "已存在生效中的目标，请先归档当前目标"),
+    GOAL_NOT_ACTIVE(2606, "fail", "当前目标不在生效中状态，无法操作"),
     ;
 
     private final Integer code;

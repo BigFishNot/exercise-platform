@@ -50,6 +50,12 @@ const routes = [
         name: 'BodyData',
         component: () => import('@/views/body/BodyDataView.vue'),
         meta: { title: '身体数据' }
+      },
+      {
+        path: '/goal',
+        name: 'WeightGoal',
+        component: () => import('@/views/goal/WeightGoalView.vue'),
+        meta: { title: '减肥目标' }
       }
     ]
   },

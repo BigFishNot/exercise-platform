@@ -82,7 +82,8 @@ import {
   FireOutlined,
   HistoryOutlined,
   LineChartOutlined,
-  AimOutlined
+  AimOutlined,
+  TrophyOutlined
 } from '@ant-design/icons-vue'
 import { useLoginStore } from '@/stores/useLoginStore'
 import { userInfoApi } from '@/api/userInfo'
@@ -96,6 +97,7 @@ const navItems = [
   { path: '/exercise',       label: '运动打卡', icon: FireOutlined },
   { path: '/exercise/today', label: '今日记录', icon: HistoryOutlined },
   { path: '/body',           label: '身体数据', icon: LineChartOutlined },
+  { path: '/goal',           label: '减肥目标', icon: TrophyOutlined },
   { path: '/profile',        label: '个人资料', icon: ProfileOutlined }
 ]
 

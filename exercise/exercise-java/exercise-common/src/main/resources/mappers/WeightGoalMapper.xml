@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.exercise.mappers.WeightGoalMapper">
+
+    <resultMap id="weightGoalMap" type="com.exercise.campus.entity.po.WeightGoal">
+        <id property="goalId" column="goal_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="targetWeight" column="target_weight"/>
+        <result property="targetBodyFat" column="target_body_fat"/>
+        <result property="targetDate" column="target_date"/>
+        <result property="remark" column="remark"/>
+        <result property="status" column="status"/>
+        <result property="activeMarker" column="active_marker"/>
+        <result property="archiveTime" column="archive_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="allColumns">
+        goal_id, user_id, target_weight, target_body_fat, target_date,
+        remark, status, active_marker, archive_time, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.exercise.campus.entity.po.WeightGoal">
+        INSERT INTO weight_goal (
+            goal_id, user_id, target_weight, target_body_fat, target_date,
+            remark, status, active_marker, create_time, update_time
+        ) VALUES (
+            #{goalId}, #{userId}, #{targetWeight}, #{targetBodyFat}, #{targetDate},
+            #{remark}, #{status}, #{activeMarker}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.exercise.campus.entity.po.WeightGoal">
+        UPDATE weight_goal
+        <set>
+            <if test="targetWeight != null">target_weight = #{targetWeight},</if>
+            <if test="targetBodyFat != null">target_body_fat = #{targetBodyFat},</if>
+            <if test="targetDate != null">target_date = #{targetDate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = NOW()
+        </set>
+        WHERE goal_id = #{goalId}
+    </update>
+
+    <update id="updateArchive">
+        UPDATE weight_goal
+        SET status = 2,
+            active_marker = #{activeMarker},
+            archive_time = #{archiveTime},
+            update_time = NOW()
+        WHERE goal_id = #{goalId}
+    </update>
+
+    <select id="selectById" resultMap="weightGoalMap">
+        SELECT <include refid="allColumns"/> FROM weight_goal WHERE goal_id = #{goalId}
+    </select>
+
+    <select id="selectActiveByUserId" resultMap="weightGoalMap">
+        SELECT <include refid="allColumns"/>
+        FROM weight_goal
+        WHERE user_id = #{userId} AND status = 1
+        LIMIT 1
+    </select>
+
+    <select id="countByQuery" resultType="int">
+        SELECT COUNT(1) FROM weight_goal
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectList" resultMap="weightGoalMap">
+        SELECT <include refid="allColumns"/> FROM weight_goal
+        <where>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY status ASC, target_date ASC
+    </select>
+</mapper>
