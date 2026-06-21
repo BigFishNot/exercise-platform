@@ -1,5 +1,11 @@
 <template>
   <div class="body-data-page">
+    <!-- 鼓励语横幅：进入页面随机展示一条 -->
+    <div class="quote-banner" v-if="todayQuote">
+      <span class="quote-icon"><BulbFilled /></span>
+      <span class="quote-text">"{{ todayQuote }}"</span>
+    </div>
+
     <!-- 今日卡 -->
     <a-card class="today-card" :bordered="false">
       <div class="today-inner">
@@ -218,12 +224,13 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { EditOutlined, LineChartOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, LineChartOutlined, BulbFilled } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { bodyDataApi } from '@/api/bodyData'
 import { useLoginStore } from '@/stores/useLoginStore'
 import { showSuccess, showError } from '@/utils/message'
+import { QUOTES } from '@/assets/quotes'
 
 const router = useRouter()
 const loginStore = useLoginStore()
@@ -235,6 +242,13 @@ const rangeKey = ref('30d')
 const upsertOpen = ref(false)
 const saving = ref(false)
 const form = reactive({ weight: null, remark: '' })
+
+// 进入页面时随机选一条鼓励语
+const todayQuote = ref('')
+function pickRandomQuote() {
+  if (!QUOTES.length) return
+  todayQuote.value = QUOTES[Math.floor(Math.random() * QUOTES.length)]
+}
 
 const hasHeight = computed(() => {
   const h = loginStore.userInfo?.height
@@ -381,7 +395,12 @@ async function onUpsert() {
   }
 }
 
+function onEncourage() {
+  // 已移除点击交互；保留空函数避免模板引用报错
+}
+
 onMounted(async () => {
+  pickRandomQuote()
   await Promise.all([loadToday(), loadTrend()])
 })
 </script>
@@ -425,6 +444,29 @@ onMounted(async () => {
   strong { color: var(--color-primary); font-weight: 700; }
 }
 .bmi-tag { border-radius: 999px !important; padding-inline: 10px !important; }
+
+/* 鼓励语横幅 */
+.quote-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background:
+    linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%),
+    var(--color-surface);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+.quote-icon {
+  font-size: 20px;
+  color: var(--color-warning);
+  flex-shrink: 0;
+}
+.quote-text { flex: 1; font-weight: 500; }
 
 /* 趋势卡 */
 .trend-card :deep(.ant-card-body) { padding: 0 24px 24px; }

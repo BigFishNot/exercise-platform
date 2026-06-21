@@ -62,6 +62,10 @@ public enum ResponseCodeEnum {
     GOAL_BODY_FAT_INVALID(2604, "fail", "目标体脂率需在 0-100% 之间"),
     GOAL_HAS_ACTIVE(2605, "fail", "已存在生效中的目标，请先归档当前目标"),
     GOAL_NOT_ACTIVE(2606, "fail", "当前目标不在生效中状态，无法操作"),
+
+    /* ========== AI 鼓励 ========== */
+    AI_ENCOURAGE_LIMIT_EXCEEDED(2701, "fail", "今日鼓励次数已用完（每天最多 3 次），明天再来吧～"),
+    AI_ENCOURAGE_FAILED(2702, "fail", "生成鼓励语失败"),
     ;
 
     private final Integer code;
