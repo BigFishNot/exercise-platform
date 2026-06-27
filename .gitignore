@@ -65,3 +65,10 @@ hs_err_pid*
 .claude/settings.local.json
 .claude/.playwright-mcp/
 .claude/agents/*.local.md
+# Claude Code 通用的 AI 参考技能（Vue3 / AntDV / Pinia 等）
+# 不是项目特定内容，本地安装 Claude Code 时自带，不进库
+.claude/skills/
+# 包含服务器密码的本地脚本（不进库，参考 .claude/pass.sh.example）
+.claude/pass.sh
+.claude/ssh-pass.sh
+.claude/check-*.py
